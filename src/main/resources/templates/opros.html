@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <style>
+        .b-divider {
+            height: 2rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+    </style>
+    <script>
+        function evt() {
+            let i = 0;
+            let good = true;
+            while (typeof (document.getElementById('group' + i)) != 'undefined' && document.getElementById('group' + i) != null) {
+                const f0 = document.getElementById('chk0.' + i).checked;
+                const f1 = document.getElementById('chk1.' + i).checked;
+                const f2 = document.getElementById('chk2.' + i).checked;
+                const f3 = document.getElementById('chk3.' + i).checked;
+                if (!(f0 || f1 || f2 || f3)) {
+                    good = false;
+                    window.location.href = "/#goto" + (i - 1);
+                    alert("Заполненны не все ответы!");
+                    break;
+                }
+                i++;
+            }
+            if (good)
+                document.form.submit();
+        }
+    </script>
+    <title>Вопросики</title>
+</head>
+<body>
+<div class="container">
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
+        <h1 class="text-center" th:text="*{student.getName()}"/>
+    </footer>
+</div>
+<div class="b-divider"></div>
+
+<form id="form" name="form" th:action="@{/save}" th:object="${null}" method="post">
+    <th:block th:each="i : ${qnum}">
+        <div class="container">
+            <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
+                <div th:id="${'group' + i}" class="row g-3" style="width: 100%;">
+                    <p style="font-size: 1.7rem;" th:text="${questions.get(i)}"/>
+                    <div class="col-md-3">
+                        <input th:id="${'chk0.' + i}" type="radio" class="form-check-input" style="width: 1.5em; margin-right: 10px;height: 1.5em;" value="1" th:name="${'group' + i}">
+                        <label class="form-check-label" style="font-size: 1.2rem;" th:for="${'chk0.' + i}">Да</label>
+                    </div>
+                    <div class="col-md-3">
+                        <input th:id="${'chk1.' + i}" type="radio" class="form-check-input" style="width: 1.5em; margin-right: 10px;height: 1.5em;" value="2" th:name="${'group' + i}">
+                        <label class="form-check-label" style="font-size: 1.2rem;" th:for="${'chk1.' + i}">Скорее да</label>
+                    </div>
+                    <div class="col-md-3">
+                        <input th:id="${'chk2.' + i}" type="radio" class="form-check-input" style="width: 1.5em; margin-right: 10px;height: 1.5em;" value="3" th:name="${'group' + i}">
+                        <label class="form-check-label" style="font-size: 1.2rem;" th:for="${'chk2.' + i}">Скорее нет</label>
+                    </div>
+                    <div class="col-md-3">
+                        <input th:id="${'chk3.' + i}" type="radio" class="form-check-input" style="width: 1.5em; margin-right: 10px;height: 1.5em;" value="4" th:name="${'group' + i}">
+                        <label class="form-check-label" style="font-size: 1.2rem;" th:for="${'chk3.' + i}">Нет</label>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        <div th:id="${'goto' + i}" class="b-divider"></div>
+    </th:block>
+</form>
+<div class="container">
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
+        <button class="w-100 btn btn-primary btn-lg" onclick="evt()">Сохранить</button>
+    </footer>
+</div>
+</body>
+</html>
