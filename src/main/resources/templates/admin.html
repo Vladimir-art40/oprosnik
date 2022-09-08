@@ -1,10 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/bootstrap.min.css">
     <title>Админка</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            border: 3px solid rgba(0, 0, 0, 0.4);
+            width: 70%;
+        }
+
+        td, th {
+            border: 1px solid #eeeeee;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #eeeeee;
+        }
+
+        .mb-16{
+            margin-bottom: 16px;
+        }
+    </style>
+    <script>
+        function drop() {
+            if (confirm('Вы сотрёте бд и всё полетит. Вы уверены?')) {
+                if (confirm('Точно?')) {
+                    window.location.href = "/admin/drop";
+                }
+            }
+        }
+    </script>
 </head>
 <body>
+<div class="container-fluid">
+    <div class="row" style="height: 100vh;">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-black sidebar collapse" style="position: fixed; height: 100vh;">
+            <div class="position-sticky pt-3 sidebar-sticky">
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a href="/admin/?sel=1" style="font-size: 1.1rem" th:class="${cond[0] + ' mb-16'}">
+                            Полный список
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/?sel=2" style="font-size: 1.1rem" th:class="${cond[1]}">
+                            Добавить из xlsx
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/?sel=3" style="font-size: 1.1rem" th:class="${cond[2] + ' mb-16'}">
+                            Добавить ручками
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/download" style="font-size: 1.1rem" class="nav-link text-white mb-16">
+                            Скачать csv
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="drop()" style="font-size: 1.1rem" class="nav-link text-white">
+                            Drop database
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[0].contains('active')}">
+            <div th:each="cls : ${clss}" class="pt-3 pb-2 mb-3">
+                <p th:text="${cls}" class="h2 mb-3" />
+                <table>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Логин</th>
+                        <th>Пароль</th>
+                        <th>Ответ</th>
+                    </tr>
+                    <tr th:each="student : ${students.get(cls)}">
+                        <td th:text="${student.getName()}" />
+                        <td th:text="${student.getUsername()}" />
+                        <td th:text="${student.getPassword()}" />
+                        <td th:text="${(student.getAnswers() != null) ? 'Сдал' : 'Нету'}" />
+                    </tr>
+                </table>
+            </div>
+        </main>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[1].contains('active')}">
+            <form th:action="@{/admin/addStudents}" th:object="${null}" method="POST" enctype=multipart/form-data>
+                <div style="margin-top: 0;" class="row g-3 w-50">
+                    <div class="col-sm-12">
+                        <input type="file" name="file" id="file" accept=".xlsx">
+                    </div>
+                    <button class="w-50 btn btn-primary btn-lg">Добавить</button>
+                </div>
+            </form>
+        </main>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[2].contains('active')}">
+            <form th:action="@{/admin/addStudent}" th:object="${null}" method="POST" enctype=multipart/form-data>
+                <div style="margin-top: 0;" class="row g-3 w-50">
+                    <div class="col-sm-3">
+                        <label for="cls" class="form-label">Класс</label>
+                        <input type="text" class="form-control" name="cls" id="cls">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="name" class="form-label">ФИО</label>
+                        <input type="text" class="form-control" name="name" id="name">
+                    </div>
+                    <button class="w-50 btn btn-primary btn-lg">Добавить</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
 </body>
 </html>

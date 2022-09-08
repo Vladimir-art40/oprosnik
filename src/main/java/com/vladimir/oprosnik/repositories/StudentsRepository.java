@@ -6,4 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 public interface StudentsRepository extends CrudRepository<Student, Integer> {
     Student getByUsername(String username);
     Iterable<Student> findAllByCls(String cls);
+    Integer countStudentByCls(String cls);
+    Integer countStudentByUsername(String username);
+    void removeAllByCls(String cls);
 }

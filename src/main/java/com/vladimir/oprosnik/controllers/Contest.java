@@ -4,6 +4,7 @@ import com.vladimir.oprosnik.models.Student;
 import com.vladimir.oprosnik.repositories.StudentsRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,8 @@ public class Contest {
 //        test.setCls("11S");
 //        studentsRepository.save(test);
 //    }
+
+
 
     @GetMapping("")
     private String getMain(Principal principal, Model model) throws FileNotFoundException {
