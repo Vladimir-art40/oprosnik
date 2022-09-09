@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <title>Список</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            border: 3px solid rgba(0, 0, 0, 0.4);
+            width: 50%;
+        }
+
+        td, th {
+            border: 1px solid #eeeeee;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #eeeeee;
+        }
+    </style>
+</head>
+<body style="padding-left: 20px;padding-top: 10px;">
+<p th:text="${cls}" class="h2 mb-3" />
+<table>
+    <tr>
+        <th>ФИО</th>
+        <th>Логин</th>
+        <th>Пароль</th>
+        <th th:if="${otv}">Ответ</th>
+    </tr>
+    <tr th:each="student : ${students}">
+        <td th:text="${student.getName()}" />
+        <td th:text="${student.getUsername()}" />
+        <td th:text="${student.getPassword()}" />
+        <td th:text="${(student.getAnswers() != null) ? 'Сдал' : 'Нету'}" th:if="${otv}"/>
+    </tr>
+</table>
+</body>
+</html>

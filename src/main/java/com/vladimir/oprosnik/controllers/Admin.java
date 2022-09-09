@@ -2,6 +2,7 @@ package com.vladimir.oprosnik.controllers;
 
 import com.vladimir.oprosnik.models.Student;
 import com.vladimir.oprosnik.repositories.StudentsRepository;
+import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -61,14 +62,14 @@ public class Admin {
     @GetMapping("")
     private String main(@RequestParam(defaultValue = "0") int sel, Principal principal, Model model){
         if(!principal.getName().equals("admin")){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         if(sel != 0)
             selected = sel;
 
         ArrayList<String> cond = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             if(selected == i + 1)
                 cond.add("nav-link text-white active");
             else
@@ -76,7 +77,7 @@ public class Admin {
         }
         model.addAttribute("cond", cond);
 
-        if(selected == 1){
+        if(selected == 1 || selected == 2){
             ArrayList<Student> students = getAllSorted();
             ArrayList<String> clss = new ArrayList<>();
             for (Student student:
@@ -123,7 +124,7 @@ public class Admin {
     @GetMapping("getAll")
     private @ResponseBody String getAll(@RequestParam(defaultValue = "all") String cls, Principal principal){
         if(!principal.getName().equals("admin")){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         StringBuilder ans = new StringBuilder();
@@ -147,7 +148,7 @@ public class Admin {
     @PostMapping("addStudent")
     private @ResponseBody String addStudent(@RequestParam String cls, @RequestParam String name, Principal principal){
         if(!principal.getName().equals("admin")){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         int r = ThreadLocalRandom.current().nextInt(0, 1001);
@@ -167,7 +168,7 @@ public class Admin {
     @PostMapping("addStudents")
     private @ResponseBody String addStudents(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
         if(!principal.getName().equals("admin")){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         ArrayList<Student> to_add = new ArrayList<>();
@@ -197,11 +198,30 @@ public class Admin {
         return "OK";
     }
 
+    @GetMapping("listStudents")
+    private String getStudents(@RequestParam String cls, @RequestParam boolean otv, Principal principal, Model model){
+        if(!principal.getName().equals("admin")){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        ArrayList<Student> students = new ArrayList<>();
+        for (Student s:
+                studentsRepository.findAllByCls(cls)) {
+            students.add(s);
+        }
+        model.addAttribute("cls", cls);
+        model.addAttribute("students", students);
+        model.addAttribute("otv", otv);
+
+        return "listStudents";
+    }
+
     @GetMapping("drop")
     private @ResponseBody String drop(Principal principal){
         if(!principal.getName().equals("admin")){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+
         studentsRepository.deleteAll();
         return "OK";
     }
@@ -209,8 +229,9 @@ public class Admin {
     @GetMapping("download")
     private @ResponseBody ResponseEntity<Resource> download(Principal principal) throws FileNotFoundException, MalformedURLException {
         if(!principal.getName().equals("admin")){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+
         PrintWriter p = new PrintWriter("tmp.csv");
         ArrayList<Student> students = getAllSorted();
         for (Student s:
@@ -226,5 +247,18 @@ public class Admin {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @GetMapping("eraseAnswer")
+    private @ResponseBody String eraseAnswer(@RequestParam String username, Principal principal){
+        if(!principal.getName().equals("admin")){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        Student student = studentsRepository.getByUsername(username);
+        student.setAnswers(null);
+        studentsRepository.save(student);
+
+        return "OK";
     }
 }

@@ -10,6 +10,7 @@
             border-collapse: collapse;
             border: 3px solid rgba(0, 0, 0, 0.4);
             width: 70%;
+            margin-top: 1rem;
         }
 
         td, th {
@@ -25,6 +26,12 @@
         .mb-16{
             margin-bottom: 16px;
         }
+
+        .lk{
+            color: black;
+            text-decoration: none;
+
+        }
     </style>
     <script>
         function drop() {
@@ -32,6 +39,12 @@
                 if (confirm('Точно?')) {
                     window.location.href = "/admin/drop";
                 }
+            }
+        }
+
+        function erase(name, link) {
+            if (confirm('Вы сотрёте ответы ученика ' + name + '. Вы уверены?')) {
+                window.location.href = link;
             }
         }
     </script>
@@ -43,17 +56,22 @@
             <div class="position-sticky pt-3 sidebar-sticky">
                 <ul class="nav nav-pills flex-column">
                     <li class="nav-item">
-                        <a href="/admin/?sel=1" style="font-size: 1.1rem" th:class="${cond[0] + ' mb-16'}">
+                        <a href="/admin/?sel=1" style="font-size: 1.1rem" th:class="${cond[0]}">
                             Полный список
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/admin/?sel=2" style="font-size: 1.1rem" th:class="${cond[1]}">
+                        <a href="/admin/?sel=2" style="font-size: 1.1rem" th:class="${cond[1] + ' mb-16'}">
+                            Полный список без ответа
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/?sel=3" style="font-size: 1.1rem" th:class="${cond[2]}">
                             Добавить из xlsx
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/admin/?sel=3" style="font-size: 1.1rem" th:class="${cond[2] + ' mb-16'}">
+                        <a href="/admin/?sel=4" style="font-size: 1.1rem" th:class="${cond[3] + ' mb-16'}">
                             Добавить ручками
                         </a>
                     </li>
@@ -73,7 +91,7 @@
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[0].contains('active')}">
             <div th:each="cls : ${clss}" class="pt-3 pb-2 mb-3">
-                <p th:text="${cls}" class="h2 mb-3" />
+                <a th:text="${cls}" class="h2 lk" th:href="${'/admin/listStudents?cls=' + cls + '&otv=true'}"/>
                 <table>
                     <tr>
                         <th>ФИО</th>
@@ -85,13 +103,38 @@
                         <td th:text="${student.getName()}" />
                         <td th:text="${student.getUsername()}" />
                         <td th:text="${student.getPassword()}" />
-                        <td th:text="${(student.getAnswers() != null) ? 'Сдал' : 'Нету'}" />
+                        <td>
+                            <a class="lk"
+                               th:data-student-name="${student.getName()}"
+                               th:data-url="${'/admin/eraseAnswer?username=' + student.getUsername()}"
+                               onclick="erase(this.getAttribute('data-student-name'), this.getAttribute('data-url'))"
+                               th:text="${(student.getAnswers() != null) ? 'Сдал' : 'Нету'}" />
+                        </td>
                     </tr>
                 </table>
             </div>
         </main>
 
+
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[1].contains('active')}">
+            <div th:each="cls : ${clss}" class="pt-3 pb-2 mb-3">
+                <a th:text="${cls}" class="h2 lk" th:href="${'/admin/listStudents?cls=' + cls + '&otv=false'}"/>
+                <table>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Логин</th>
+                        <th>Пароль</th>
+                    </tr>
+                    <tr th:each="student : ${students.get(cls)}">
+                        <td th:text="${student.getName()}" />
+                        <td th:text="${student.getUsername()}" />
+                        <td th:text="${student.getPassword()}" />
+                    </tr>
+                </table>
+            </div>
+        </main>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[2].contains('active')}">
             <form th:action="@{/admin/addStudents}" th:object="${null}" method="POST" enctype=multipart/form-data>
                 <div style="margin-top: 0;" class="row g-3 w-50">
                     <div class="col-sm-12">
@@ -102,7 +145,7 @@
             </form>
         </main>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[2].contains('active')}">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" th:if="${cond[3].contains('active')}">
             <form th:action="@{/admin/addStudent}" th:object="${null}" method="POST" enctype=multipart/form-data>
                 <div style="margin-top: 0;" class="row g-3 w-50">
                     <div class="col-sm-3">
