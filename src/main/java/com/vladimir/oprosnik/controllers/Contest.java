@@ -29,17 +29,12 @@ public class Contest {
         this.studentsRepository = studentsRepository;
     }
 
-//    @Bean
-//    private void createTestUser(){
-//        Student test = new Student();
-//        test.setUsername("test");
-//        test.setPassword("test");
-//        test.setName("Кто-то тестовый");
-//        test.setCls("11S");
-//        studentsRepository.save(test);
-//    }
-
-
+    private int getClsNum(String cls){
+        int i = 1;
+        while (i < cls.length() && Character.isDigit(cls.toCharArray()[i]))
+            i++;
+        return Integer.parseInt(cls.substring(0, i));
+    }
 
     @GetMapping("")
     private String getMain(Principal principal, Model model) throws FileNotFoundException {
@@ -56,7 +51,13 @@ public class Contest {
 
         model.addAttribute("student", student);
 
-        Scanner questions_reader = new Scanner(new File("questions"));
+        Scanner questions_reader;
+        if(getClsNum(student.getCls()) >= 10){
+            questions_reader = new Scanner(new File("questions-10-11.txt"));
+        }else{
+            questions_reader = new Scanner(new File("questions-7-9.txt"));
+        }
+
         ArrayList<String> questions = new ArrayList<>();
         ArrayList<Integer> qnum = new ArrayList<>();
         int i = 0;
