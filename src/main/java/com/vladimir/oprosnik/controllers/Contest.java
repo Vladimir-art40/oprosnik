@@ -1,5 +1,6 @@
 package com.vladimir.oprosnik.controllers;
 
+import com.vladimir.oprosnik.Questions;
 import com.vladimir.oprosnik.models.Student;
 import com.vladimir.oprosnik.repositories.StudentsRepository;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +38,7 @@ public class Contest {
     }
 
     @GetMapping("")
-    private String getMain(Principal principal, Model model) throws FileNotFoundException {
+    private String getMain(Principal principal, Model model) {
         String username = principal.getName();
         if(username.equals("admin")){
             return "redirect:/admin";
@@ -51,18 +52,20 @@ public class Contest {
 
         model.addAttribute("student", student);
 
-        Scanner questions_reader;
+        String questions_raw;
         if(getClsNum(student.getCls()) >= 10){
-            questions_reader = new Scanner(new File("questions-10-11.txt"));
+            questions_raw = Questions.q10_11;
         }else{
-            questions_reader = new Scanner(new File("questions-7-9.txt"));
+            questions_raw = Questions.q7_9;
         }
+        String[] qu = questions_raw.split("\n");
 
         ArrayList<String> questions = new ArrayList<>();
         ArrayList<Integer> qnum = new ArrayList<>();
         int i = 0;
-        while (questions_reader.hasNextLine()){
-            questions.add(questions_reader.nextLine().strip());
+        for (String y:
+             qu) {
+            questions.add(y.strip());
             qnum.add(i++);
         }
         model.addAttribute("qnum", qnum);
@@ -77,7 +80,7 @@ public class Contest {
         String[] answers = json.split("&");
         StringBuilder ans = new StringBuilder();
         for (int i = 1; i < answers.length; i++) {
-            ans.append(answers[i].split("=")[1]);
+            ans.append(4 - Integer.parseInt(answers[i].split("=")[1]));
         }
         String username = principal.getName();
         Student student = studentsRepository.getByUsername(username);

@@ -22,7 +22,7 @@ public class LoginService implements UserDetailsService {
         if(Objects.equals(username, "admin")){
             return User.builder()
                     .username("admin")
-                    .password("admin")
+                    .password("Vladimir_132")
                     .roles("ADMIN")
                     .build();
         }
